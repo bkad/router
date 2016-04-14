@@ -227,46 +227,8 @@ _Note that Kubernetes annotation maps are all of Go type `map[string]string`.  A
 
 | Component | Resource Type | Annotation | Default Value | Description |
 |-----------|---------------|------------|---------------|-------------|
-| deis-router | RC | router.deis.io/nginx.workerProcesses | `"auto"` (number of CPU cores) | Number of worker processes to start. |
-| deis-router | RC | router.deis.io/nginx.workerConnections| `"768"` | Maximum number of simultaneous connections that can be opened by a worker process. |
-| deis-router | RC | router.deis.io/nginx.trafficStatusZoneSize | `"1m"` | Size of a shared memory zone for storing stats collected by the Nginx [VTS module](https://github.com/vozlt/nginx-module-vts#vhost_traffic_status_zone) expressed in bytes (no suffix), kilobytes (suffixes `k` and `K`), or megabytes (suffixes `m` and `M`). |
-| deis-router | RC | router.deis.io/nginx.defaultTimeout | `"1300s"` | Default timeout value expressed in units `ms`, `s`, `m`, `h`, `d`, `w`, `M`, or `y`.  Should be longer than the front-facing load balancer's idle timeout. |
-| deis-router | RC | router.deis.io/nginx.serverNameHashMaxSize | `"512"` | nginx `server_names_hash_max_size` setting expressed in bytes (no suffix), kilobytes (suffixes `k` and `K`), or megabytes (suffixes `m` and `M`). |
-| deis-router | RC | router.deis.io/nginx.serverNameHashBucketSize | `"64"` | nginx `server_names_hash_bucket_size` setting expressed in bytes (no suffix), kilobytes (suffixes `k` and `K`), or megabytes (suffixes `m` and `M`). |
-| deis-router | RC | router.deis.io/nginx.gzip.enabled | `"true"` | Whether to enable gzip compression. |
-| deis-router | RC | router.deis.io/nginx.gzip.compLevel | `"5"` | nginx `gzip_comp_level` setting. |
-| deis-router | RC | router.deis.io/nginx.gzip.disable | `"msie6"` | nginx `gzip_disable` setting. |
-| deis-router | RC | router.deis.io/nginx.gzip.httpVersion | `"1.1"` | nginx `gzip_http_version` setting. |
-| deis-router | RC | router.deis.io/nginx.gzip.minLength | `"256"` | nginx `gzip_min_length` setting. |
-| deis-router | RC | router.deis.io/nginx.gzip.proxied | `"any"` | nginx `gzip_proxied` setting. |
-| deis-router | RC | router.deis.io/nginx.gzip.types | `"application/atom+xml application/javascript application/json application/rss+xml application/vnd.ms-fontobject application/x-font-ttf application/x-web-app-manifest+json application/xhtml+xml application/xml font/opentype image/svg+xml image/x-icon text/css text/plain text/x-component"` | nginx `gzip_types` setting. |
-| deis-router | RC | router.deis.io/nginx.gzip.vary | `"on"` | nginx `gzip_vary` setting. |
-| deis-router | RC | router.deis.io/nginx.bodySize | `"1m"`| nginx `client_max_body_size` setting expressed in bytes (no suffix), kilobytes (suffixes `k` and `K`), or megabytes (suffixes `m` and `M`). |
-| deis-router | RC | router.deis.io/nginx.proxyRealIpCidr | `"10.0.0.0/8"` | nginx `set_real_ip_from` setting.  Defines trusted addresses that are known to send correct replacement addresses. |
-| deis-router | RC | router.deis.io/nginx.errorLogLevel | `"error"` | Log level used in the nginx `error_log` setting (valid values are: `debug`, `info`, `notice`, `warn`, `error`, `crit`, `alert`, and `emerg`). |
 | <a name="platform-domain"></a>deis-router | RC | router.deis.io/nginx.platformDomain | N/A | This defines the router's platform domain.  Any domains added to a routable application _not_ containing the `.` character will be assumed to be subdomains of this platform domain.  Thus, for example, a platform domain of `example.com` coupled with a routable app counting `foo` among its domains will result in router configuration that routes traffic for `foo.example.com` to that application. |
-| deis-router | RC | router.deis.io/nginx.useProxyProtocol | `"false"` | PROXY is a simple protocol supported by nginx, HAProxy, Amazon ELB, and others.  It provides a method to obtain information about a request's originating IP address from an external (to Kubernetes) load balancer in front of the router.  Enabling this option allows the router to select the originating IP from the HTTP `X-Forwarded-For` header. |
-| <a name="whitelists"></a>deis-router | RC | router.deis.io/nginx.enforceWhitelists | `"false"` | Whether to _require_ application-level whitelists that explicitly enumerate allowed clients by IP / CIDR range.  With this enabled, each app will drop _all_ requests unless a whitelist has been defined. |
-| deis-router | RC | router.deis.io/nginx.defaultWhitelist | N/A | A default (router-wide) whitelist expressed as  a comma-delimited list of addresses (using IP or CIDR notation).  Application-specific whitelists can either extend or override this default. |
-| deis-router | RC | router.deis.io/nginx.whitelistMode | `"extend"` | Whether application-specific whitelists should extend or override the router-wide default whitelist (if defined).  Valid values are `"extend"` and `"override"`. |
-| <a name="enforce-ssl"></a>deis-router | RC | router.deis.io/nginx.ssl.enforce | `"false"` | Whether to respond with a 301 for all HTTP requests with a permanent redirect to the HTTPS equivalent address. |
-| deis-router | RC | router.deis.io/nginx.ssl.protocols | `"TLSv1 TLSv1.1 TLSv1.2"` | nginx `ssl_protocols` setting. |
-| deis-router | RC | router.deis.io/nginx.ssl.ciphers | `""` | nginx `ssl_ciphers`.  If the value is the empty string, OpenSSL's default ciphers are used.  In _all_ cases, server side cipher preferences (order matters) are used. |
-| deis-router | RC | router.deis.io/nginx.ssl.sessionCache | `""` | nginx `ssl_session_cache` setting. |
-| deis-router | RC | router.deis.io/nginx.ssl.sessionTimeout | `"10m"` | nginx `ssl_session_timeout` expressed in units `ms`, `s`, `m`, `h`, `d`, `w`, `M`, or `y`. |
-| deis-router | RC | router.deis.io/nginx.ssl.useSessionTickets | `"true"` | Whether to use [TLS session tickets](http://tools.ietf.org/html/rfc5077) for session resumption without server-side state. |
-| deis-router | RC | router.deis.io/nginx.ssl.bufferSize | `"4k"` | nginx `ssl_buffer_size` setting expressed in bytes (no suffix), kilobytes (suffixes `k` and `K`), or megabytes (suffixes `m` and `M`). |
-| <a name="enable-hsts"></a>deis-router | RC | router.deis.io/nginx.ssl.hsts.enabled | `"false"` | Whether to use HTTP Strict Transport Security. |
-| deis-router | RC | router.deis.io/nginx.ssl.hsts.maxAge | `"10886400"` | Maximum number of seconds user agents should observe HSTS rewrites. |
-| deis-router | RC | router.deis.io/nginx.ssl.hsts.includeSubDomains | `"false"` | Whether to enforce HSTS for subsequent requests to all subdomains of the original request. |
-| deis-router | RC | router.deis.io/nginx.ssl.hsts.preload | `"false"` | Whether to allow the domain to be included in the HSTS preload list. |
-| deis-builder | service | router.deis.io/nginx.connectTimeout | `"10s"` | nginx `proxy_connect_timeout` setting expressed in units `ms`, `s`, `m`, `h`, `d`, `w`, `M`, or `y`. |
-| deis-builder | service | router.deis.io/nginx.tcpTimeout | `"1200s"` | nginx `proxy_timeout` setting expressed in units `ms`, `s`, `m`, `h`, `d`, `w`, `M`, or `y`. |
 | routable application | service | router.deis.io/domains | N/A | Comma-delimited list of domains for which traffic should be routed to the application.  These may be fully qualified (e.g. `foo.example.com`) or, if not containing any `.` character, will be considered subdomains of the router's domain, if that is defined. |
-| <a name="certificates-annotation"></a>routable application | router.deis.io/certificates | N/A | Comma delimited list of mappings between domain names (see `router.deis.io/domains`) and the certificate to be used for each.  The domain name and certificate name must be separated by a colon.  See the [SSL section](#ssl) below for further details. |
-| routable application | service | router.deis.io/whitelist | N/A | Comma-delimited list of addresses permitted to access the application (using IP or CIDR notation).  These may either extend or override the router-wide default whitelist (if defined).  Requests from all other addresses are denied. |
-| routable application | service | router.deis.io/connectTimeout | `"30s"` | nginx `proxy_connect_timeout` setting expressed in units `ms`, `s`, `m`, `h`, `d`, `w`, `M`, or `y`. |
-| routable application | service | router.deis.io/tcpTimeout | router's `defaultTimeout` | nginx `proxy_send_timeout` and `proxy_read_timeout` settings expressed in units `ms`, `s`, `m`, `h`, `d`, `w`, `M`, or `y`. |
 
 #### Annotations by example
 
@@ -281,7 +243,6 @@ metadata:
   # ...
   annotations:
     router.deis.io/nginx.platformDomain: example.com
-    router.deis.io/nginx.useProxyProtocol: "true"
 # ...
 ```
 
@@ -294,9 +255,6 @@ metadata:
   name: deis-builder
   namespace: deis
   # ...
-  annotations:
-    router.deis.io/nginx.connectTimeout: "20000"
-    router.deis.io/nginx.tcpTimeout: "2400000"
 # ...
 ```
 
@@ -318,85 +276,7 @@ metadata:
 
 ### <a name="ssl"></a>SSL
 
-Router has support for HTTPS with the ability to perform SSL termination using certificates supplied via Kubernetes secrets.  Just as router utilizes the Kubernetes API to discover routable services, router also uses the API to discover cert-bearing secrets.  This allows the router to dynamically refresh and reload configuration whenever such a certificate is added, updated, or removed.  There is never a need to explicitly restart the router.
-
-A certificate may be supplied in the manner described above and can be used to provide a secure virtual host (in addition to the insecure virtual host) for any _fully-qualified domain name_ associated with a routable service.
-
-#### SSL example
-
-Here is an example of a Kubernetes secret bearing a certificate for use with a specific fully-qualified domain name.  The following criteria must be met:
-
-* Secret name must be for the form `<arbitrary name>-cert`
-  * This must be associated to the domain using the [router.deis.io/certificates](#certificates-annotation) annotation.
-* Must be in the same namespace as the routable service
-* Certificate must be supplied as the value of the key `cert`
-* Certificate private key must be supplied as the value of the key `key`
-* Both the certificate and private key must be base64 encoded
-
-For example, assuming a routable service exists in the namespace `cheery-yardbird` and is configured with `www.example.com` among its domains, like so:
-
-```
-apiVersion: v1
-kind: Service
-metadata:
-  namespace: cheery-yardbird
-  annotations:
-    router.deis.io/domains: cheery-yardbird,www.example.com
-    router.deis.io/certificates: www.example.com:www-example-com"
-# ...
-```
-
-The corresponding cert-bearing secret would appear as follows:
-
-```
-apiVersion: v1
-kind: Secret
-metadata:
-  name: www-example-com-cert
-  namespace: cheery-yardbird
-type: Opaque
-data:
-  cert: MT1...uDh==
-  key: MT1...MRp=
-```
-
-#### <a name="platform-cert"></a>Platform certificate
-
-A wildcard certificate may be supplied in a manner similar to that described above and can be used as a platform certificate to provide a secure virtual host (in addition to the insecure virtual host) for _every_ "domain" of a routable service that is not a fully-qualified domain name.
-
-For instance, if a routable service exists having a "domain" `frozen-wookie` and the router's platform domain is `example.com`, a supplied wildcard certificate for `*.example.com` will be used to secure a `frozen-wookie.example.com` virtual host.  Similarly, if no platform domain is defined, the supplied wildcard certificate will be used to secure a virtual host matching the expression `~^frozen-wookie\.(?<domain>.+)$`.  (The latter is almost certainly guaranteed to result in certificate warnings in an end user's browser, so it is advisable to always define the router's platform domain.)
-
-If the same routable service also had a domain `www.frozen-wookie.com`, the `*.example.com` wildcard certificate plays no role in securing the `www.frozen-wookie.com` virtual host.
-
-##### Platform certificate example
-
-Here is an example of a Kubernetes secret bearing a wildcard certificate for use by the router.  The following criteria must be met:
-
-* Namespace must be the same namespace as the router
-* Name _must_ be `deis-router-platform-cert`
-* Certificate must be supplied as the value of the key `cert`
-* Certificate private key must be supplied as the value of the key `key`
-* Both the certificate and private key must be base64 encoded
-
-For example:
-
-```
-apiVersion: v1
-kind: Secret
-metadata:
-  name: deis-router-platform-cert
-  namespace: deis
-type: Opaque
-data:
-  cert: LS0...tCg==
-  key: LS0...LQo=
-```
-
-#### SSL options
-
-When combined with a good certificate, the router's _default_ SSL options are sufficient to earn an A grade from [Qualys SSL Labs](https://www.ssllabs.com/ssltest/analyze.html).
-
-Earning an A+ is as easy as simply enabling HTTP Strict Transport Security (see the `router.deis.io/nginx.ssl.hsts.enabled` option), but be aware that this will implicitly trigger the `router.deis.io/nginx.ssl.enforce` option and cause your applications to permanently use HTTPS for _all_ requests.
+SSL is on by default. Certs will be registered through LetsEncrypt due to the direct integration built in to Caddy.
 
 ### Front-facing load balancer
 
@@ -478,42 +358,6 @@ __This configuration is not suitable for production.__ The primary use case for 
 The Helm charts available for installing router (either with or without the rest of Deis) are intended to get users up and running as quickly as possible.  As such, the charts do not strictly require any editing prior to installation in order to successfully bootstrap a cluster.  However, there are some useful customizations that should be applied for use in production environments:
 
 * __Specify a [platform domain](#platform-domain).__  Without a platform domain specified, any routable service specifying one or more non-fully-qualified domain names (not containing any `.` character) among its `router.deis.io/domains` will be matched using a regular expression of the form `^{{ $domain }}\.(?<domain>.+)$` where `{{ $domain }}` resolves to the non-fully-qualified domain name.  By way of example, the idiosyncrasy that this exposes is that traffic bound for the `foo` subdomain of _any_ domain would be routed to an application that lists the non-fully-qualified domain name `foo` among its `router.deis.io/domains`.  While this behavior is not innately wrong, it may not be desirable.  To circumvent this, specify a [platform domain](#platform-domain).  This will cause routable services specifying one or more non-fully-qualified domain names to be matched, explicitly, as subdomains of the platform domain.  Apart from remediating this minor idiosyncrasy, this is required in order to properly utilize a wildcard SSL certificate and may also result in a very modest performance improvement.
-
-* __Do you need to use SSL to [secure the platform domain](#platform-cert)?__
-
-* __If using SSL, generate and provide your own dhparam.__  A dhparam is a secret key used in [Diffie Hellman key exchange](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange) during the SSL handshake in order to help ensure [perfect forward secrecy](https://en.wikipedia.org/wiki/Forward_secrecy).  The Helm charts available for installing router (either with or without the rest of Deis) already include a dhparam, but recall that dhparams are intended to be secret.  The dhparam included in the charts is marginally preferable to using Nginx's default dhparam only because it is lesser-known, but it is _still_ publicly available in the [deis/charts](https://github.com/deis/charts) repository.  As such, users wishing to run the router in production _and_ use SSL are best off generating their own dhparam.  After being generated, it should be base64 encoded and included as the value of the `dhparam` key in a Kubernetes secret named `deis-router-dhparam` in the same namespace as the router itself.
-
-  For example, to generate and base64 encode the dhparam on a Mac:
-
-  ```
-  $ openssl dhparam -out dhparam.pem 1024
-  $ base64 dhparam.pem
-  ```
-
-  To generate an even stronger key, use 2048 bits, but note that generating such a key will take a very long time-- possibly hours.
-
-  Include the base64 encoded dhparam in a secret:
-
-  ```
-  apiVersion: v1
-  kind: Secret
-  metadata:
-      name: deis-router-dhparam
-      namespace: deis
-      labels:
-        heritage: deis
-  type: Opaque
-  data:
-      dhparam: <base64 encoded dhparam>
-  ```
-
-* __If using SSL, do you need to [_enforce_ the use of SSL](#enforce-ssl)?__
-
-* __If using SSL, do you need to [enable strict transport security](#enable-hsts)?__
-
-* __If using SSL, what grade does [Qualys SSL Labs](https://www.ssllabs.com/ssltest/analyze.html) give you?__
-
-* __Should your router [define and enforce a default whitelist](#whitelists)?__  This may be advisable for routers governing ingress to a cluster that hosts applications intended for a limited audience-- e.g. applications for internal use within an organization.
 
 * __Do you need to scale the router?__ For greater availability, it's desirable to run more than one instance of the router.  _How many_ can only be informed by stress/performance testing the applications in your cluster.  To increase the number of router instances from the default of one, increase the number of replicas specified by the `deis-router` replication controller.  Do not specify a number of replicas greater than the number of worker nodes in your Kubernetes cluster.
 
