@@ -162,11 +162,11 @@ Requesting http://unknown.example.com should result in a 404 from the router sin
 
 ## <a name="how-it-works"></a>How it Works
 
-The router is implemented as a simple Go program that manages Nginx and Nginx configuration.  It regularly queries the Kubernetes API for services labeled with `router.deis.io/routable: "true"`.  Such services are compared to known services resident in memory.  If there are differences, new Nginx configuration is generated and Nginx is reloaded.
+The router is implemented as a simple Go program that manages Caddyserver and Caddy configuration.  It regularly queries the Kubernetes API for services labeled with `router.deis.io/routable: "true"`.  Such services are compared to known services resident in memory.  If there are differences, new Caddy configuration is generated and Caddy is reloaded.
 
-When generating configuration, the program reads all annotations of each service prefixed with `router.deis.io`.  These annotations describe all the configuration options that allow the program to dynamically construct Nginx configuration, including virtual hosts for all the domain names associated with each routable application.
+When generating configuration, the program reads all annotations of each service prefixed with `router.deis.io`.  These annotations describe all the configuration options that allow the program to dynamically construct Caddy configuration, including virtual hosts for all the domain names associated with each routable application.
 
-Similarly, the router watches the annotations on its _own_ replication controller to dynamically construct global Nginx configuration.
+Similarly, the router watches the annotations on its _own_ replication controller to dynamically construct global Caddy configuration.
 
 ## <a name="configuration"></a>Configuration Guide
 

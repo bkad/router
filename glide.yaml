@@ -1,4 +1,4 @@
-package: github.com/deis/router
+package: github.com/drud/router
 flatten: true
 import:
 - package: k8s.io/kubernetes

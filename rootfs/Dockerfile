@@ -17,18 +17,15 @@ RUN addgroup -S router && \
 
 COPY . /
 
-# compile nginx from source
-RUN build
-
-# Re-copy these files because the previous step will have overwritten them
-COPY opt/router /opt/router
-
 # Fix some permission since we'll be running as a non-root user.
-RUN chown -R router:router /opt/router
+RUN chown -R router:router /opt/router \
+  && touch /var/run/caddy.pid \
+  && chown router:router /var/run/caddy.pid
 
 USER router
 
 CMD ["/opt/router/sbin/boot"]
-EXPOSE 2222 8080 6443 9090
+EXPOSE 80 443 2015 2222 9090
 
 ENV DEIS_RELEASE 2.0.0
+WORKDIR /opt/router

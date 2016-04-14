@@ -3,10 +3,9 @@ package model
 import (
 	"fmt"
 	"log"
-	"strings"
 
-	"github.com/deis/router/utils"
-	modelerUtility "github.com/deis/router/utils/modeler"
+	"github.com/drud/router/utils"
+	modelerUtility "github.com/drud/router/utils/modeler"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/errors"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
@@ -35,158 +34,34 @@ func init() {
 
 // RouterConfig is the primary type used to encapsulate all router configuration.
 type RouterConfig struct {
-	WorkerProcesses          string      `key:"workerProcesses" constraint:"^(auto|[1-9]\\d*)$"`
-	MaxWorkerConnections     string      `key:"maxWorkerConnections" constraint:"^[1-9]\\d*$"`
-	TrafficStatusZoneSize    string      `key:"trafficStatusZoneSize" constraint:"^[1-9]\\d*[kKmM]?$"`
-	DefaultTimeout           string      `key:"defaultTimeout" constraint:"^[1-9]\\d*(ms|[smhdwMy])?$"`
-	ServerNameHashMaxSize    string      `key:"serverNameHashMaxSize" constraint:"^[1-9]\\d*[kKmM]?$"`
-	ServerNameHashBucketSize string      `key:"serverNameHashBucketSize" constraint:"^[1-9]\\d*[kKmM]?$"`
-	GzipConfig               *GzipConfig `key:"gzip"`
-	BodySize                 string      `key:"bodySize" constraint:"^[1-9]\\d*[kKmM]?$"`
-	ProxyRealIPCIDR          string      `key:"proxyRealIpCidr" constraint:"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"`
-	ErrorLogLevel            string      `key:"errorLogLevel" constraint:"^(info|notice|warn|error|crit|alert|emerg)$"`
-	PlatformDomain           string      `key:"platformDomain" constraint:"(?i)^([a-z0-9]+(-[a-z0-9]+)*\\.)+[a-z]{2,}$"`
-	UseProxyProtocol         bool        `key:"useProxyProtocol" constraint:"(?i)^(true|false)$"`
-	EnforceWhitelists        bool        `key:"enforceWhitelists" constraint:"(?i)^(true|false)$"`
-	DefaultWhitelist         []string    `key:"defaultWhitelist" constraint:"^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))?(\\s*,\\s*)?)+$"`
-	WhitelistMode            string      `key:"whitelistMode" constraint:"^(extend|override)$"`
-	SSLConfig                *SSLConfig  `key:"ssl"`
-	AppConfigs               []*AppConfig
-	BuilderConfig            *BuilderConfig
-	PlatformCertificate      *Certificate
+	PlatformDomain string `key:"platformDomain" constraint:"(?i)^([a-z0-9]+(-[a-z0-9]+)*\\.)+[a-z]{2,}$"`
+	AppConfigs     []*AppConfig
+	BuilderConfig  *BuilderConfig
 }
 
 func newRouterConfig() *RouterConfig {
-	return &RouterConfig{
-		WorkerProcesses:          "auto",
-		MaxWorkerConnections:     "768",
-		TrafficStatusZoneSize:    "1m",
-		DefaultTimeout:           "1300s",
-		ServerNameHashMaxSize:    "512",
-		ServerNameHashBucketSize: "64",
-		GzipConfig:               newGzipConfig(),
-		BodySize:                 "1m",
-		ProxyRealIPCIDR:          "10.0.0.0/8",
-		ErrorLogLevel:            "error",
-		UseProxyProtocol:         false,
-		EnforceWhitelists:        false,
-		WhitelistMode:            "extend",
-		SSLConfig:                newSSLConfig(),
-	}
-}
-
-// GzipConfig encapsulates gzip configuration.
-type GzipConfig struct {
-	Enabled     bool   `key:"enabled" constraint:"(?i)^(true|false)$"`
-	CompLevel   string `key:"compLevel" constraint:"^[1-9]$"`
-	Disable     string `key:"disable"`
-	HTTPVersion string `key:"httpVersion" constraint:"^(1\\.0|1\\.1)$"`
-	MinLength   string `key:"minLength" constraint:"^\\d+$"`
-	Proxied     string `key:"proxied" constraint:"^((off|expired|no-cache|no-store|private|no_last_modified|no_etag|auth|any)\\s*)+$"`
-	Types       string `key:"types" constraint:"(?i)^([a-z\\d]+/[a-z\\d][a-z\\d+\\-\\.]*[a-z\\d]\\s*)+$"`
-	Vary        string `key:"vary" constraint:"^(on|off)$"`
-}
-
-func newGzipConfig() *GzipConfig {
-	return &GzipConfig{
-		Enabled:     true,
-		CompLevel:   "5",
-		Disable:     "msie6",
-		HTTPVersion: "1.1",
-		MinLength:   "256",
-		Proxied:     "any",
-		Types:       "application/atom+xml application/javascript application/json application/rss+xml application/vnd.ms-fontobject application/x-font-ttf application/x-web-app-manifest+json application/xhtml+xml application/xml font/opentype image/svg+xml image/x-icon text/css text/plain text/x-component",
-		Vary:        "on",
-	}
+	return &RouterConfig{}
 }
 
 // AppConfig encapsulates the configuration for all routes to a single back end.
 type AppConfig struct {
-	Name           string
-	Domains        []string `key:"domains" constraint:"(?i)^((([a-z0-9]+(-[a-z0-9]+)*)|((\\*\\.)?[a-z0-9]+(-[a-z0-9]+)*\\.)+[a-z]{2,})(\\s*,\\s*)?)+$"`
-	Whitelist      []string `key:"whitelist" constraint:"^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))?(\\s*,\\s*)?)+$"`
-	ConnectTimeout string   `key:"connectTimeout" constraint:"^[1-9]\\d*(ms|[smhdwMy])?$"`
-	TCPTimeout     string   `key:"tcpTimeout" constraint:"^[1-9]\\d*(ms|[smhdwMy])?$"`
-	ServiceIP      string
-	CertMappings   map[string]string `key:"certificates" constraint:"(?i)^((([a-z0-9]+(-[a-z0-9]+)*)|((\\*\\.)?[a-z0-9]+(-[a-z0-9]+)*\\.)+[a-z]{2,}):([a-z0-9]+(-[a-z0-9]+)*)(\\s*,\\s*)?)+$"`
-	Certificates   map[string]*Certificate
-	Available      bool
+	Name      string
+	Domains   []string `key:"domains" constraint:"(?i)^((([a-z0-9]+(-[a-z0-9]+)*)|((\\*\\.)?[a-z0-9]+(-[a-z0-9]+)*\\.)+[a-z]{2,})(\\s*,\\s*)?)+$"`
+	ServiceIP string
+	Available bool
 }
 
 func newAppConfig(routerConfig *RouterConfig) *AppConfig {
-	return &AppConfig{
-		ConnectTimeout: "30s",
-		TCPTimeout:     routerConfig.DefaultTimeout,
-		Certificates:   make(map[string]*Certificate, 0),
-	}
+	return &AppConfig{}
 }
 
 // BuilderConfig encapsulates the configuration of the deis-builder-- if it's in use.
 type BuilderConfig struct {
-	ConnectTimeout string `key:"connectTimeout" constraint:"^[1-9]\\d*(ms|[smhdwMy])?$"`
-	TCPTimeout     string `key:"tcpTimeout" constraint:"^[1-9]\\d*(ms|[smhdwMy])?$"`
-	ServiceIP      string
+	ServiceIP string
 }
 
 func newBuilderConfig() *BuilderConfig {
-	return &BuilderConfig{
-		ConnectTimeout: "10s",
-		TCPTimeout:     "1200s",
-	}
-}
-
-// Certificate represents an SSL certificate for use in securing routable applications.
-type Certificate struct {
-	Cert string
-	Key  string
-}
-
-func newCertificate(cert string, key string) *Certificate {
-	return &Certificate{
-		Cert: cert,
-		Key:  key,
-	}
-}
-
-// SSLConfig represents SSL-related configuration options.
-type SSLConfig struct {
-	Enforce           bool        `key:"enforce" constraint:"(?i)^(true|false)$"`
-	Protocols         string      `key:"protocols" constraint:"^((SSLv2|SSLv3|TLSv1|TLSv1\\.1|TLSv1\\.2)\\s*)+$"`
-	Ciphers           string      `key:"ciphers" constraint:"^([A-Z][A-Z\\d-]+:?)*$"`
-	SessionCache      string      `key:"sessionCache" constraint:"^(off|none|((builtin(:[1-9]\\d*)?|shared:\\w+:[1-9]\\d*[kKmM]?)\\s*){1,2})$"`
-	SessionTimeout    string      `key:"sessionTimeout" constraint:"^[1-9]\\d*(ms|[smhdwMy])?$"`
-	UseSessionTickets bool        `key:"useSessionTickets" constraint:"(?i)^(true|false)$"`
-	BufferSize        string      `key:"bufferSize" constraint:"^[1-9]\\d*[kKmM]?$"`
-	HSTSConfig        *HSTSConfig `key:"hsts"`
-	DHParam           string
-}
-
-func newSSLConfig() *SSLConfig {
-	return &SSLConfig{
-		Enforce:           false,
-		Protocols:         "TLSv1 TLSv1.1 TLSv1.2",
-		SessionTimeout:    "10m",
-		UseSessionTickets: true,
-		BufferSize:        "4k",
-		HSTSConfig:        newHSTSConfig(),
-	}
-}
-
-// HSTSConfig represents configuration options having to do with HTTP Strict Transport Security.
-type HSTSConfig struct {
-	Enabled           bool `key:"enabled" constraint:"(?i)^(true|false)$"`
-	MaxAge            int  `key:"maxAge" constraint:"^[1-9]\\d*$"`
-	IncludeSubDomains bool `key:"includeSubDomains" constraint:"(?i)^(true|false)$"`
-	Preload           bool `key:"preload" constraint:"(?i)^(true|false)$"`
-}
-
-func newHSTSConfig() *HSTSConfig {
-	return &HSTSConfig{
-		Enabled:           false,
-		MaxAge:            15552000, // 180 days
-		IncludeSubDomains: false,
-		Preload:           false,
-	}
+	return &BuilderConfig{}
 }
 
 // Build creates a RouterConfig configuration object by querying the k8s API for
@@ -210,16 +85,8 @@ func Build(kubeClient *client.Client) (*RouterConfig, error) {
 	if err != nil {
 		return nil, err
 	}
-	platformCertSecret, err := getSecret(kubeClient, "deis-router-platform-cert", namespace)
-	if err != nil {
-		return nil, err
-	}
-	dhParamSecret, err := getSecret(kubeClient, "deis-router-dhparam", namespace)
-	if err != nil {
-		return nil, err
-	}
 	// Build the model...
-	routerConfig, err := build(kubeClient, routerRC, platformCertSecret, dhParamSecret, appServices, builderService)
+	routerConfig, err := build(kubeClient, routerRC, appServices, builderService)
 	if err != nil {
 		return nil, err
 	}
@@ -261,23 +128,8 @@ func getBuilderService(kubeClient *client.Client) (*api.Service, error) {
 	return service, nil
 }
 
-func getSecret(kubeClient *client.Client, name string, ns string) (*api.Secret, error) {
-	secretClient := kubeClient.Secrets(ns)
-	secret, err := secretClient.Get(name)
-	if err != nil {
-		statusErr, ok := err.(*errors.StatusError)
-		// If the issue is just that no such secret was found, that's ok.
-		if ok && statusErr.Status().Code == 404 {
-			// We'll just return nil instead of a found *api.Secret
-			return nil, nil
-		}
-		return nil, err
-	}
-	return secret, nil
-}
-
-func build(kubeClient *client.Client, routerRC *api.ReplicationController, platformCertSecret *api.Secret, dhParamSecret *api.Secret, appServices *api.ServiceList, builderService *api.Service) (*RouterConfig, error) {
-	routerConfig, err := buildRouterConfig(routerRC, platformCertSecret, dhParamSecret)
+func build(kubeClient *client.Client, routerRC *api.ReplicationController, appServices *api.ServiceList, builderService *api.Service) (*RouterConfig, error) {
+	routerConfig, err := buildRouterConfig(routerRC)
 	if err != nil {
 		return nil, err
 	}
@@ -302,25 +154,11 @@ func build(kubeClient *client.Client, routerRC *api.ReplicationController, platf
 	return routerConfig, nil
 }
 
-func buildRouterConfig(rc *api.ReplicationController, platformCertSecret *api.Secret, dhParamSecret *api.Secret) (*RouterConfig, error) {
+func buildRouterConfig(rc *api.ReplicationController) (*RouterConfig, error) {
 	routerConfig := newRouterConfig()
 	err := modeler.MapToModel(rc.Annotations, "nginx", routerConfig)
 	if err != nil {
 		return nil, err
-	}
-	if platformCertSecret != nil {
-		platformCertificate, err := buildCertificate(platformCertSecret, "default")
-		if err != nil {
-			return nil, err
-		}
-		routerConfig.PlatformCertificate = platformCertificate
-	}
-	if dhParamSecret != nil {
-		dhParam, err := buildDHParam(dhParamSecret)
-		if err != nil {
-			return nil, err
-		}
-		routerConfig.SSLConfig.DHParam = dhParam
 	}
 	return routerConfig, nil
 }
@@ -342,29 +180,6 @@ func buildAppConfig(kubeClient *client.Client, service api.Service, routerConfig
 	if len(appConfig.Domains) == 0 {
 		return nil, nil
 	}
-	// Step through the domains, and decide which cert, if any, will be used for securing each.
-	// For each that is a FQDN, we'll look to see if a corresponding cert-bearing secret also
-	// exists.  If so, that will be used.  If a domain isn't an FQDN we will use the default cert--
-	// even if that is nil.
-	for _, domain := range appConfig.Domains {
-		if strings.Contains(domain, ".") {
-			// Look for a cert-bearing secret for this domain.
-			secretName := fmt.Sprintf("%s-cert", appConfig.CertMappings[domain])
-			certSecret, err := getSecret(kubeClient, secretName, service.Namespace)
-			if err != nil {
-				return nil, err
-			}
-			if certSecret != nil {
-				certificate, err := buildCertificate(certSecret, domain)
-				if err != nil {
-					return nil, err
-				}
-				appConfig.Certificates[domain] = certificate
-			}
-		} else {
-			appConfig.Certificates[domain] = routerConfig.PlatformCertificate
-		}
-	}
 	appConfig.ServiceIP = service.Spec.ClusterIP
 	endpointsClient := kubeClient.Endpoints(service.Namespace)
 	endpoints, err := endpointsClient.Get(service.Name)
@@ -383,32 +198,4 @@ func buildBuilderConfig(service *api.Service) (*BuilderConfig, error) {
 		return nil, err
 	}
 	return builderConfig, nil
-}
-
-func buildCertificate(certSecret *api.Secret, context string) (*Certificate, error) {
-	cert, ok := certSecret.Data["cert"]
-	// If no cert is found in the secret, warn and return nil
-	if !ok {
-		log.Printf("WARN: The k8s secret intended to convey the %s certificate contained no entry \"cert\".\n", context)
-		return nil, nil
-	}
-	key, ok := certSecret.Data["key"]
-	// If no key is found in the secret, warn and return nil
-	if !ok {
-		log.Printf("WARN: The k8s secret intended to convey the %s certificate key contained no entry \"key\".\n", context)
-		return nil, nil
-	}
-	certStr := string(cert[:])
-	keyStr := string(key[:])
-	return newCertificate(certStr, keyStr), nil
-}
-
-func buildDHParam(dhParamSecret *api.Secret) (string, error) {
-	dhParam, ok := dhParamSecret.Data["dhparam"]
-	// If no dhparam is found in the secret, warn and return ""
-	if !ok {
-		log.Println("WARN: The k8s secret intended to convey the dhparam contained no entry \"dhparam\".")
-		return "", nil
-	}
-	return string(dhParam), nil
 }

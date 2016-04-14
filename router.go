@@ -4,14 +4,17 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/deis/router/model"
-	"github.com/deis/router/nginx"
+	"github.com/drud/router/caddy"
+	"github.com/drud/router/model"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"k8s.io/kubernetes/pkg/util"
 )
 
 func main() {
-	nginx.Start()
+	err := caddy.Start()
+	if err != nil {
+		log.Fatalf("Failed to start caddy: %v", err)
+	}
 	kubeClient, err := client.NewInCluster()
 	if err != nil {
 		log.Fatalf("Failed to create client: %v.", err)
@@ -30,22 +33,15 @@ func main() {
 			continue
 		}
 		log.Println("INFO: Router configuration has changed in k8s.")
-		err = nginx.WriteCerts(routerConfig, "/opt/router/ssl")
+		err = caddy.WriteConfig(routerConfig, "/opt/router/Caddyfile")
 		if err != nil {
-			log.Printf("Failed to write certs; continuing with existing certs, dhparam, and configuration: %v", err)
+			log.Printf("Failed to write new caddy configuration; continuing with existing configuration: %v", err)
 			continue
 		}
-		err = nginx.WriteDHParam(routerConfig, "/opt/router/ssl")
+		err = caddy.Reload()
 		if err != nil {
-			log.Printf("Failed to write dhparam; continuing with existing dhparam and configuration: %v", err)
-			continue
+			log.Fatalf("Failed to reload caddy: %v", err)
 		}
-		err = nginx.WriteConfig(routerConfig, "/opt/router/conf/nginx.conf")
-		if err != nil {
-			log.Printf("Failed to write new nginx configuration; continuing with existing configuration: %v", err)
-			continue
-		}
-		nginx.Reload()
 		known = routerConfig
 	}
 }

@@ -6,7 +6,7 @@ IMAGE_PREFIX ?= deis
 
 include versioning.mk
 
-REPO_PATH := github.com/deis/${SHORT_NAME}
+REPO_PATH := github.com/drud/${SHORT_NAME}
 
 # The following variables describe the containerized development environment
 # and other build options
@@ -19,7 +19,7 @@ BINDIR := ./rootfs/opt/router/sbin
 
 # The following variables describe the source we build from
 GO_FILES := $(wildcard *.go)
-GO_DIRS := model/ nginx/ utils/ utils/modeler
+GO_DIRS := model/ caddy/ utils/ utils/modeler
 GO_PACKAGES := ${REPO_PATH} $(addprefix ${REPO_PATH}/,${GO_DIRS})
 
 # The binary compression command used
