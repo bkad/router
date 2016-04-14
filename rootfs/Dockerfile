@@ -9,17 +9,18 @@ RUN apk add --update-cache \
   && rm -rf /var/cache/apk/*
 
 # add router user
-RUN addgroup -S router && \
-  adduser -S -G router -H -h /opt/router -D router
+#RUN addgroup -S router && \
+#  adduser -S -G router -H -h /opt/router -D router
 
 COPY . /
 
 # Fix some permission since we'll be running as a non-root user.
-RUN chown -R router:router /opt/router \
-  && touch /var/run/caddy.pid \
-  && chown router:router /var/run/caddy.pid
+#RUN chown -R router:router /opt/router \
+#  && touch /var/run/caddy.pid \
+#  && chown router:router /var/run/caddy.pid \
 
-USER router
+# Some day figure out how to run this as non root.
+#USER router
 
 CMD ["/opt/router/sbin/boot"]
 EXPOSE 80 443 2015 2222 9090

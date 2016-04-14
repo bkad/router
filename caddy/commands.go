@@ -13,7 +13,7 @@ import (
 // Start Caddy.
 func Start() error {
 	log.Println("INFO: Starting caddy...")
-	cmd := exec.Command("caddy", "--pidfile=/var/run/caddy.pid", "--conf=/opt/router/Caddyfile", "--log=stdout", "--agree=true")
+	cmd := exec.Command("caddy", "--pidfile=/var/run/caddy.pid", "--conf=/opt/router/Caddyfile", "--log=stdout", "--agree=true", "--port=80")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Start(); err != nil {
