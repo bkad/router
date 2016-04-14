@@ -1,19 +1,16 @@
-FROM alpine:3.3
+FROM alpine:edge
 
 # install common packages
 RUN apk add --update-cache \
-	bash \
-	curl \
-	geoip \
-	libssl1.0 \
-	openssl \
-	pcre \
-	sudo \
-	&& rm -rf /var/cache/apk/*
+  bash \
+  caddy \
+  curl \
+  wget \
+  && rm -rf /var/cache/apk/*
 
 # add router user
 RUN addgroup -S router && \
-	adduser -S -G router -H -h /opt/router -D router
+  adduser -S -G router -H -h /opt/router -D router
 
 COPY . /
 

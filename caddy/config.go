@@ -9,16 +9,17 @@ import (
 )
 
 const (
-	confTemplate = `{{ $routerConfig := . }}
-{{ range $appConfig := $routerConfig.AppConfigs }}{{ range $domain := $appConfig.Domains }}
-{{ if $appConfig.Available }}
+	confTemplate = `# Automatically generated Caddyfile
+0.0.0.0 {
+	root /opt/router/default
+}
+{{ $routerConfig := . }}
+{{ range $appConfig := $routerConfig.AppConfigs }}{{ range $domain := $appConfig.Domains }}{{ if $appConfig.Available }}
 {{ if contains "." $domain }}{{ $domain }}{{ else if ne $routerConfig.PlatformDomain "" }}{{ $domain }}.{{ $routerConfig.PlatformDomain }}{{ else }}{{ $domain }}{{ end }} {
 	proxy / {{$appConfig.ServiceIP}}:80
 	tls off
 }
-
-{{ end }}
-{{ end }}{{ end }}
+{{ end }}{{ end }}{{ end }}
 `
 )
 
