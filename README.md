@@ -227,7 +227,7 @@ _Note that Kubernetes annotation maps are all of Go type `map[string]string`.  A
 
 | Component | Resource Type | Annotation | Default Value | Description |
 |-----------|---------------|------------|---------------|-------------|
-| <a name="platform-domain"></a>deis-router | RC | router.deis.io/nginx.platformDomain | N/A | This defines the router's platform domain.  Any domains added to a routable application _not_ containing the `.` character will be assumed to be subdomains of this platform domain.  Thus, for example, a platform domain of `example.com` coupled with a routable app counting `foo` among its domains will result in router configuration that routes traffic for `foo.example.com` to that application. |
+| <a name="platform-domain"></a>deis-router | RC | router.deis.io/caddy.platformDomain | N/A | This defines the router's platform domain.  Any domains added to a routable application _not_ containing the `.` character will be assumed to be subdomains of this platform domain.  Thus, for example, a platform domain of `example.com` coupled with a routable app counting `foo` among its domains will result in router configuration that routes traffic for `foo.example.com` to that application. |
 | routable application | service | router.deis.io/domains | N/A | Comma-delimited list of domains for which traffic should be routed to the application.  These may be fully qualified (e.g. `foo.example.com`) or, if not containing any `.` character, will be considered subdomains of the router's domain, if that is defined. |
 
 #### Annotations by example
@@ -242,7 +242,7 @@ metadata:
   namespace: deis
   # ...
   annotations:
-    router.deis.io/nginx.platformDomain: example.com
+    router.deis.io/caddy.platformDomain: example.com
 # ...
 ```
 
