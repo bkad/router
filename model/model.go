@@ -47,6 +47,8 @@ func newRouterConfig() *RouterConfig {
 type AppConfig struct {
 	Name      string
 	Domains   []string `key:"domains" constraint:"(?i)^((([a-z0-9]+(-[a-z0-9]+)*)|((\\*\\.)?[a-z0-9]+(-[a-z0-9]+)*\\.)+[a-z]{2,})(\\s*,\\s*)?)+$"`
+	TLS       string   `key:"tls" constraint:"^(off)$`
+	TLSEmail  string   `key:"tlsEmail"`
 	ServiceIP string
 	Available bool
 }
@@ -156,7 +158,7 @@ func build(kubeClient *client.Client, routerRC *api.ReplicationController, appSe
 
 func buildRouterConfig(rc *api.ReplicationController) (*RouterConfig, error) {
 	routerConfig := newRouterConfig()
-	err := modeler.MapToModel(rc.Annotations, "nginx", routerConfig)
+	err := modeler.MapToModel(rc.Annotations, "caddy", routerConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +195,7 @@ func buildAppConfig(kubeClient *client.Client, service api.Service, routerConfig
 func buildBuilderConfig(service *api.Service) (*BuilderConfig, error) {
 	builderConfig := newBuilderConfig()
 	builderConfig.ServiceIP = service.Spec.ClusterIP
-	err := modeler.MapToModel(service.Annotations, "nginx", builderConfig)
+	err := modeler.MapToModel(service.Annotations, "caddy", builderConfig)
 	if err != nil {
 		return nil, err
 	}
