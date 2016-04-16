@@ -12,15 +12,15 @@ All of the configurability and cert handling in the Deis Router V2 was removed t
 
 Please refer to the [Deis Router V2 documentation][deisrouter]. Below is the minimal configurations currently supported by this caddy fork of the router.
 
-### Annotations
+### Configurations via Kubernetes Manifests
 
-| Component | Resource Type | Annotation | Default Value | Description |
+| Component | Resource Type | Label/Annotation | Key | Description |
 |-----------|---------------|------------|---------------|-------------|
-| deis-router | RC | router.deis.io/caddy.platformDomain | N/A | This defines the router's platform domain.  Any domains added to a routable application _not_ containing the `.` character will be assumed to be subdomains of this platform domain.  Thus, for example, a platform domain of `example.com` coupled with a routable app counting `foo` among its domains will result in router configuration that routes traffic for `foo.example.com` to that application. |
-| routable application | service | router.deis.io/routable | N/A | Only services that have a `routable` value of `"true"` will be tracked. |
-| routable application | service | router.deis.io/domains | N/A | Comma-delimited list of domains for which traffic should be routed to the application.  These may be fully qualified (e.g. `foo.example.com`) or, if not containing any `.` character, will be considered subdomains of the router's domain, if that is defined. |
+| deis-router | RC | annotation| router.deis.io/caddy.platformDomain | This defines the router's platform domain.  Any domains added to a routable application _not_ containing the `.` character will be assumed to be subdomains of this platform domain.  Thus, for example, a platform domain of `example.com` coupled with a routable app counting `foo` among its domains will result in router configuration that routes traffic for `foo.example.com` to that application. |
+| routable application | service | label | router.deis.io/routable | Only services that have a `routable` value of `"true"` will be tracked. |
+| routable application | service | annotation | router.deis.io/domains | Comma-delimited list of domains for which traffic should be routed to the application.  These may be fully qualified (e.g. `foo.example.com`) or, if not containing any `.` character, will be considered subdomains of the router's domain, if that is defined. |
 
-#### Annotations by example
+#### Configurations by example
 
 ##### router replication controller:
 
