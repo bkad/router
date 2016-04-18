@@ -19,6 +19,9 @@ Please refer to the [Deis Router V2 documentation][deisrouter]. Below is the min
 | deis-router | RC | annotation| router.deis.io/caddy.platformDomain | This defines the router's platform domain.  Any domains added to a routable application _not_ containing the `.` character will be assumed to be subdomains of this platform domain.  Thus, for example, a platform domain of `example.com` coupled with a routable app counting `foo` among its domains will result in router configuration that routes traffic for `foo.example.com` to that application. |
 | routable application | service | label | router.deis.io/routable | Only services that have a `routable` value of `"true"` will be tracked. |
 | routable application | service | annotation | router.deis.io/domains | Comma-delimited list of domains for which traffic should be routed to the application.  These may be fully qualified (e.g. `foo.example.com`) or, if not containing any `.` character, will be considered subdomains of the router's domain, if that is defined. |
+| routable application | service | annotation | router.deis.io/basicAuthPath | Defaults to "/", the path in which the basicAuthUser and basicAuthPass basic authentication should be enabled. |
+| routable application | service | annotation | router.deis.io/basicAuthUser | If populated along with basicAuthPass, provides basic authentication with the username and password. |
+| routable application | service | annotation | router.deis.io/basicAuthPass | If populated along with basicAuthUser, provides basic authentication with the username and password. |
 
 #### Configurations by example
 
@@ -52,6 +55,8 @@ metadata:
     router.deis.io/domains: foo,bar,www.foobar.com
     router.deis.io/tlsEmail: dr@who.com
     # router.deis.io/tls: off      (only if you have to)
+    router.deis.io/basicAuthUser: "testuser"
+    router.deis.io/basicAuthPass: "testpass"
 # ...
 ```
 

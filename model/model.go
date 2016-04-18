@@ -50,18 +50,24 @@ func newRouterConfig() *RouterConfig {
 
 // AppConfig encapsulates the configuration for all routes to a single back end.
 type AppConfig struct {
-	Name      string
-	Domains   []string `key:"domains" constraint:"(?i)^((([a-z0-9]+(-[a-z0-9]+)*)|((\\*\\.)?[a-z0-9]+(-[a-z0-9]+)*\\.)+[a-z]{2,})(\\s*,\\s*)?)+$"`
-	TLS       string   `key:"tls" constraint:"^(off)$`
-	TLSEmail  string   `key:"tlsEmail"`
-	ServiceIP string
-	Available bool
+	Name          string
+	Domains       []string `key:"domains" constraint:"(?i)^((([a-z0-9]+(-[a-z0-9]+)*)|((\\*\\.)?[a-z0-9]+(-[a-z0-9]+)*\\.)+[a-z]{2,})(\\s*,\\s*)?)+$"`
+	TLS           string   `key:"tls" constraint:"^(off)$`
+	TLSEmail      string   `key:"tlsEmail"`
+	BasicAuthPath string   `key:"basicAuthPath"`
+	BasicAuthUser string   `key:"basicAuthUser"`
+	BasicAuthPass string   `key:"basicAuthPass"`
+	ServiceIP     string
+	Available     bool
 }
 
 func newAppConfig(routerConfig *RouterConfig) *AppConfig {
 	return &AppConfig{
-		TLS:      "",
-		TLSEmail: "",
+		TLS:           "",
+		TLSEmail:      "",
+		BasicAuthPath: "/",
+		BasicAuthUser: "",
+		BasicAuthPass: "",
 	}
 }
 
