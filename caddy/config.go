@@ -17,7 +17,13 @@ const (
 {{ range $appConfig := $routerConfig.AppConfigs }}{{ range $domain := $appConfig.Domains }}{{ if $appConfig.Available }}
 {{ if contains "." $domain }}{{ $domain }}{{ else if ne $routerConfig.PlatformDomain "" }}{{ $domain }}.{{ $routerConfig.PlatformDomain }}{{ else }}{{ $domain }}{{ end }} {
 	proxy / {{$appConfig.ServiceIP}}:80
-	{{ if eq $appConfig.TLS "off" }}tls off{{ else if $appConfig.TLSEmail }}tls {{ $appConfig.TLSEmail }}{{ end }}
+	{{ if eq $routerConfig.TLS "off" }}{{ else if eq $appConfig.TLS "off" }}tls off{{ else }}
+	{{ if $appConfig.TLSEmail }}tls {{ $appConfig.TLSEmail }}{{ else if $routerConfig.TLSEmail }}tls {{ $routerConfig.TLSEmail }}{{ end }}
+	{{ end }}
+
+	{{ if $appConfig.BasicAuthPath }}{{ if $appConfig.BasicAuthUser }}{{ if $appConfig.BasicAuthPass }}
+	basicauth {{ $appConfig.BasicAuthPath}} {{ $appConfig.BasicAuthUser }} {{ $appConfig.BasicAuthPass }}
+	{{ end }}{{ end }}{{ end }}
 }
 {{ end }}{{ end }}{{ end }}
 `
