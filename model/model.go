@@ -37,10 +37,15 @@ type RouterConfig struct {
 	PlatformDomain string `key:"platformDomain" constraint:"(?i)^([a-z0-9]+(-[a-z0-9]+)*\\.)+[a-z]{2,}$"`
 	AppConfigs     []*AppConfig
 	BuilderConfig  *BuilderConfig
+	TLS            string `key:"tls" constraint:"^(off)$`
+	TLSEmail       string `key:"tlsEmail"`
 }
 
 func newRouterConfig() *RouterConfig {
-	return &RouterConfig{}
+	return &RouterConfig{
+		TLS:      "",
+		TLSEmail: "",
+	}
 }
 
 // AppConfig encapsulates the configuration for all routes to a single back end.
