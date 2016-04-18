@@ -59,7 +59,10 @@ type AppConfig struct {
 }
 
 func newAppConfig(routerConfig *RouterConfig) *AppConfig {
-	return &AppConfig{}
+	return &AppConfig{
+		TLS:      "",
+		TLSEmail: "",
+	}
 }
 
 // BuilderConfig encapsulates the configuration of the deis-builder-- if it's in use.
