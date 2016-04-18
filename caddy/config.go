@@ -22,8 +22,8 @@ const (
 	{{ if eq $routerConfig.TLS "off" }}{{ else if eq $appConfig.TLS "off" }}tls off{{ else }}
 	{{ if $appConfig.TLSEmail }}tls {{ $appConfig.TLSEmail }}{{ else if $routerConfig.TLSEmail }}tls {{ $routerConfig.TLSEmail }}{{ end }}
 	{{ end }}
-	{{ if $appConfig.BasicAuthPath }}{{ if $appConfig.BasicAuthUser }}{{ if $appConfig.BasicAuthPass }}
-	basicauth {{ $appConfig.BasicAuthPath}} {{ $appConfig.BasicAuthUser }} {{ $appConfig.BasicAuthPass }}
+	{{ if ne $appConfig.BasicAuthPath "" }}{{ if ne $appConfig.BasicAuthUser "" }}{{ if ne $appConfig.BasicAuthPass "" }}
+	basicauth {{ $appConfig.BasicAuthPath }} {{ $appConfig.BasicAuthUser }} {{ $appConfig.BasicAuthPass }}
 	{{ end }}{{ end }}{{ end }}
 }
 {{ end }}{{ end }}{{ end }}
