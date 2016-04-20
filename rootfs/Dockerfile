@@ -6,7 +6,8 @@ RUN apk add --update-cache \
   caddy \
   curl \
   wget \
-  && rm -rf /var/cache/apk/*
+  && rm -rf /var/cache/apk/* \
+  && touch /var/run/caddy.pid
 
 # add router user
 #RUN addgroup -S router && \
@@ -16,7 +17,6 @@ COPY . /
 
 # Fix some permission since we'll be running as a non-root user.
 #RUN chown -R router:router /opt/router \
-#  && touch /var/run/caddy.pid \
 #  && chown router:router /var/run/caddy.pid \
 
 # Some day figure out how to run this as non root.
