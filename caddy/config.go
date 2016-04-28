@@ -20,9 +20,18 @@ const (
 {{ if contains "." $domain }}{{ $domain }}{{ else if ne $routerConfig.PlatformDomain "" }}{{ $domain }}.{{ $routerConfig.PlatformDomain }}{{ else }}{{ $domain }}{{ end }} {
     proxy / {{$appConfig.ServiceIP}}:80 {
         proxy_header Host {host}
+        proxy_header X-Forwarded-Proto {scheme}
     }
-    {{ if eq $routerConfig.TLS "off" }}tls off{{ else if eq $appConfig.TLS "off" }}tls off{{ else }}
-    {{ if $appConfig.TLSEmail }}tls {{ $appConfig.TLSEmail }}{{ else if $routerConfig.TLSEmail }}tls {{ $routerConfig.TLSEmail }}{{ end }}
+    {{ if eq $routerConfig.TLS "off" }}
+    tls off
+    {{ else if eq $appConfig.TLS "off" }}
+    tls off
+    {{ else }}
+        {{ if $appConfig.TLSEmail }}
+    tls {{ $appConfig.TLSEmail }}
+        {{ else if $routerConfig.TLSEmail }}
+    tls {{ $routerConfig.TLSEmail }}
+        {{ end }}
     {{ end }}
     {{ if ne $appConfig.BasicAuthPath "" }}{{ if ne $appConfig.BasicAuthUser "" }}{{ if ne $appConfig.BasicAuthPass "" }}
     basicauth {{ $appConfig.BasicAuthPath }} {{ $appConfig.BasicAuthUser }} {{ $appConfig.BasicAuthPass }}

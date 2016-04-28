@@ -2,7 +2,7 @@ include includes.mk
 
 SHORT_NAME := router
 DEIS_REGISTRY ?= ${DEV_REGISTRY}
-IMAGE_PREFIX ?= deis
+IMAGE_PREFIX ?= drud
 
 include versioning.mk
 
