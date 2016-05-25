@@ -11,7 +11,7 @@ import (
 const (
 	confTemplate = `# Automatically generated Caddyfile
 0.0.0.0 {
-	root /opt/router/default
+	header / HTTP/1.0 "404 Not Found"
 }
 
 {{ $routerConfig := . }}
