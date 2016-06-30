@@ -20,7 +20,7 @@ const (
 {{ $routerConfig := . }}
 
 {{ range $appConfig := $routerConfig.AppConfigs }}{{ range $domain := $appConfig.Domains }}{{ if $appConfig.Available }}
-{{ with $domainType := "" }}{{ if contains "." $domain }}{{ $domainType := "raw" }}{{ $domain }}{{ else if ne $routerConfig.PlatformDomain "" }}{{ $domainType := "platform" }}{{ $domain }}.{{ $routerConfig.PlatformDomain }}{{ else }}{{ $domainType := "bare" }}{{ $domain }}{{ end }} {
+{{ if contains "." $domain }}{{ $domain }}{{ else if ne $routerConfig.PlatformDomain "" }}{{ $domain }}.{{ $routerConfig.PlatformDomain }}{{ else }}{{ $domain }}{{ end }} {
     proxy / {{$appConfig.ServiceIP}}:80 {
         proxy_header Host {host}
         proxy_header X-Forwarded-Proto {scheme}
@@ -30,7 +30,7 @@ const (
     {{ else if eq $appConfig.TLS "off" }}
     tls off
     {{ else }}
-        {{ if eq $domainType "platform" and $routerConfig.PlatformCertificate }}
+        {{ if not contains "." $domain and ne $routerConfig.PlatformDomain "" and $routerConfig.PlatformCertificate }}
     tls /opt/router/ssl/platform.crt /opt/router/ssl/platform.key
         {{ else if $appConfig.TLSEmail }}
     tls {{ $appConfig.TLSEmail }}
@@ -38,9 +38,9 @@ const (
     tls {{ $routerConfig.TLSEmail }}
         {{ end }}
     {{ end }}
-    {{ if ne $appConfig.BasicAuthPath "" }}{{ if ne $appConfig.BasicAuthUser "" }}{{ if ne $appConfig.BasicAuthPass "" }}
+    {{ if ne $appConfig.BasicAuthPath "" and ne $appConfig.BasicAuthUser "" and ne $appConfig.BasicAuthPass "" }}
     basicauth {{ $appConfig.BasicAuthPath }} {{ $appConfig.BasicAuthUser }} {{ $appConfig.BasicAuthPass }}
-    {{ end }}{{ end }}{{ end }}
+    {{ end }}
 }
 {{ end }}{{ end }}{{ end }}{{ end }}
 `
