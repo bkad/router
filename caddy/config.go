@@ -30,8 +30,8 @@ const (
     {{ else if eq $appConfig.TLS "off" }}
     tls off
     {{ else }}
-        {{ if eq $domainType "platform"}}
-	tls /opt/router/ssl/platform.crt /opt/router/ssl/platform.key	
+        {{ if eq $domainType "platform" and $routerConfig.PlatformCertificate }}
+    tls /opt/router/ssl/platform.crt /opt/router/ssl/platform.key
         {{ else if $appConfig.TLSEmail }}
     tls {{ $appConfig.TLSEmail }}
         {{ else if $routerConfig.TLSEmail }}
