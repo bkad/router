@@ -20,7 +20,7 @@ const (
 {{ $routerConfig := . }}
 
 {{ range $appConfig := $routerConfig.AppConfigs }}{{ range $domain := $appConfig.Domains }}{{ if $appConfig.Available }}
-{{ with $domainType := "" }}{{ if contains "." $domain }}{{ $domainType = "raw" }}{{ $domain }}{{ else if ne $routerConfig.PlatformDomain "" }}{{ $domainType = "platform" }}{{ $domain }}.{{ $routerConfig.PlatformDomain }}{{ else }}{{ $domainType = "bare" }}{{ $domain }}{{ end }} {
+{{ with $domainType := "" }}{{ if contains "." $domain }}{{ $domainType := "raw" }}{{ $domain }}{{ else if ne $routerConfig.PlatformDomain "" }}{{ $domainType := "platform" }}{{ $domain }}.{{ $routerConfig.PlatformDomain }}{{ else }}{{ $domainType := "bare" }}{{ $domain }}{{ end }} {
     proxy / {{$appConfig.ServiceIP}}:80 {
         proxy_header Host {host}
         proxy_header X-Forwarded-Proto {scheme}
