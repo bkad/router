@@ -38,9 +38,9 @@ const (
     tls {{ $routerConfig.TLSEmail }}
         {{ end }}
     {{ end }}
-    {{ if ne $appConfig.BasicAuthPath "" and ne $appConfig.BasicAuthUser "" and ne $appConfig.BasicAuthPass "" }}
+    {{ if ne $appConfig.BasicAuthPath "" }}{{ if ne $appConfig.BasicAuthUser "" }}{{ if ne $appConfig.BasicAuthPass "" }}
     basicauth {{ $appConfig.BasicAuthPath }} {{ $appConfig.BasicAuthUser }} {{ $appConfig.BasicAuthPass }}
-    {{ end }}
+    {{ end }}{{ end }}{{ end }}
 }
 {{ end }}{{ end }}{{ end }}
 `
