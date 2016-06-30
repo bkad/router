@@ -42,7 +42,7 @@ const (
     basicauth {{ $appConfig.BasicAuthPath }} {{ $appConfig.BasicAuthUser }} {{ $appConfig.BasicAuthPass }}
     {{ end }}
 }
-{{ end }}{{ end }}{{ end }}{{ end }}
+{{ end }}{{ end }}{{ end }}
 `
 )
 
