@@ -21,7 +21,7 @@ const (
 
 {{ range $appConfig := $routerConfig.AppConfigs }}{{ range $domain := $appConfig.Domains }}{{ if $appConfig.Available }}
 {{ if contains "." $domain }}{{ $domain }}{{ else if ne $routerConfig.PlatformDomain "" }}{{ $domain }}.{{ $routerConfig.PlatformDomain }}{{ else }}{{ $domain }}{{ end }} {
-    proxy / {{$appConfig.ServiceIP}}:80 {
+    proxy / {{ $appConfig.ServiceIP }}:80 {
         proxy_header Host {host}
         proxy_header X-Forwarded-Proto {scheme}
     }
@@ -30,7 +30,7 @@ const (
     {{ else if eq $appConfig.TLS "off" }}
     tls off
     {{ else }}
-        {{ if not contains "." $domain and ne $routerConfig.PlatformDomain "" and $routerConfig.PlatformCertificate }}
+        {{ if and (not (contains "." $domain)) (ne $routerConfig.PlatformDomain "") ($routerConfig.PlatformCertificate) }}
     tls /opt/router/ssl/platform.crt /opt/router/ssl/platform.key
         {{ else if $appConfig.TLSEmail }}
     tls {{ $appConfig.TLSEmail }}
