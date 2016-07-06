@@ -33,6 +33,11 @@ func main() {
 			continue
 		}
 		log.Println("INFO: Router configuration has changed in k8s.")
+		err = caddy.WriteCerts(routerConfig, "/opt/router/ssl")
+		if err != nil {
+			log.Printf("Failed to write certs; continuing with existing certs and configuration: %v", err)
+			continue
+		}
 		err = caddy.WriteConfig(routerConfig, "/opt/router/Caddyfile")
 		if err != nil {
 			log.Printf("Failed to write new caddy configuration; continuing with existing configuration: %v", err)

@@ -34,11 +34,12 @@ func init() {
 
 // RouterConfig is the primary type used to encapsulate all router configuration.
 type RouterConfig struct {
-	PlatformDomain string `key:"platformDomain" constraint:"(?i)^([a-z0-9]+(-[a-z0-9]+)*\\.)+[a-z]{2,}$"`
-	AppConfigs     []*AppConfig
-	BuilderConfig  *BuilderConfig
-	TLS            string `key:"tls" constraint:"^(off)$`
-	TLSEmail       string `key:"tlsEmail"`
+	PlatformDomain      string `key:"platformDomain" constraint:"(?i)^([a-z0-9]+(-[a-z0-9]+)*\\.)+[a-z]{2,}$"`
+	AppConfigs          []*AppConfig
+	BuilderConfig       *BuilderConfig
+	TLS                 string `key:"tls" constraint:"^(off)$`
+	TLSEmail            string `key:"tlsEmail"`
+	PlatformCertificate *Certificate
 }
 
 func newRouterConfig() *RouterConfig {
@@ -80,6 +81,19 @@ func newBuilderConfig() *BuilderConfig {
 	return &BuilderConfig{}
 }
 
+// Certificate represents an SSL certificate for use in securing routable applications.
+type Certificate struct {
+	Cert string
+	Key  string
+}
+
+func newCertificate(cert string, key string) *Certificate {
+	return &Certificate{
+		Cert: cert,
+		Key:  key,
+	}
+}
+
 // Build creates a RouterConfig configuration object by querying the k8s API for
 // relevant metadata concerning itself and all routable services.
 func Build(kubeClient *client.Client) (*RouterConfig, error) {
@@ -101,8 +115,12 @@ func Build(kubeClient *client.Client) (*RouterConfig, error) {
 	if err != nil {
 		return nil, err
 	}
+	platformCertSecret, err := getSecret(kubeClient, "deis-router-platform-cert", namespace)
+	if err != nil {
+		return nil, err
+	}
 	// Build the model...
-	routerConfig, err := build(kubeClient, routerRC, appServices, builderService)
+	routerConfig, err := build(kubeClient, routerRC, platformCertSecret, appServices, builderService)
 	if err != nil {
 		return nil, err
 	}
@@ -144,8 +162,23 @@ func getBuilderService(kubeClient *client.Client) (*api.Service, error) {
 	return service, nil
 }
 
-func build(kubeClient *client.Client, routerRC *api.ReplicationController, appServices *api.ServiceList, builderService *api.Service) (*RouterConfig, error) {
-	routerConfig, err := buildRouterConfig(routerRC)
+func getSecret(kubeClient *client.Client, name string, ns string) (*api.Secret, error) {
+	secretClient := kubeClient.Secrets(ns)
+	secret, err := secretClient.Get(name)
+	if err != nil {
+		statusErr, ok := err.(*errors.StatusError)
+		// If the issue is just that no such secret was found, that's ok.
+		if ok && statusErr.Status().Code == 404 {
+			// We'll just return nil instead of a found *api.Secret
+			return nil, nil
+		}
+		return nil, err
+	}
+	return secret, nil
+}
+
+func build(kubeClient *client.Client, routerRC *api.ReplicationController, platformCertSecret *api.Secret, appServices *api.ServiceList, builderService *api.Service) (*RouterConfig, error) {
+	routerConfig, err := buildRouterConfig(routerRC, platformCertSecret)
 	if err != nil {
 		return nil, err
 	}
@@ -170,11 +203,18 @@ func build(kubeClient *client.Client, routerRC *api.ReplicationController, appSe
 	return routerConfig, nil
 }
 
-func buildRouterConfig(rc *api.ReplicationController) (*RouterConfig, error) {
+func buildRouterConfig(rc *api.ReplicationController, platformCertSecret *api.Secret) (*RouterConfig, error) {
 	routerConfig := newRouterConfig()
 	err := modeler.MapToModel(rc.Annotations, "caddy", routerConfig)
 	if err != nil {
 		return nil, err
+	}
+	if platformCertSecret != nil {
+		platformCertificate, err := buildCertificate(platformCertSecret, "platform")
+		if err != nil {
+			return nil, err
+		}
+		routerConfig.PlatformCertificate = platformCertificate
 	}
 	return routerConfig, nil
 }
@@ -214,4 +254,22 @@ func buildBuilderConfig(service *api.Service) (*BuilderConfig, error) {
 		return nil, err
 	}
 	return builderConfig, nil
+}
+
+func buildCertificate(certSecret *api.Secret, context string) (*Certificate, error) {
+	cert, ok := certSecret.Data["tls.crt"]
+	// If no cert is found in the secret, warn and return nil
+	if !ok {
+		log.Printf("WARN: The k8s secret intended to convey the %s certificate contained no entry \"tls.crt\".\n", context)
+		return nil, nil
+	}
+	key, ok := certSecret.Data["tls.key"]
+	// If no key is found in the secret, warn and return nil
+	if !ok {
+		log.Printf("WARN: The k8s secret intended to convey the %s certificate key contained no entry \"tls.key\".\n", context)
+		return nil, nil
+	}
+	certStr := string(cert[:])
+	keyStr := string(key[:])
+	return newCertificate(certStr, keyStr), nil
 }
