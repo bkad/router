@@ -147,5 +147,7 @@ imports:
   - pkg/apis/extensions/v1beta1
   - third_party/forked/reflect
 - name: speter.net/go/exp/math/dec/inf
-  version: 42ca6cd68aa922bc3f32f1e056e61b65945d9ad7
+  version: 46a40649338836f5d25521ce343379da79ef2184
+  repo: https://github.com/belua/inf
+  vcs: git
 devImports: []
