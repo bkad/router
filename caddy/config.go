@@ -41,6 +41,9 @@ const (
     {{ if ne $appConfig.BasicAuthPath "" }}{{ if ne $appConfig.BasicAuthUser "" }}{{ if ne $appConfig.BasicAuthPass "" }}
     basicauth {{ $appConfig.BasicAuthPath }} {{ $appConfig.BasicAuthUser }} {{ $appConfig.BasicAuthPass }}
     {{ end }}{{ end }}{{ end }}
+    header / {
+        Strict-Transport-Security  "max-age=31536000;"
+    }
 }
 {{ end }}{{ end }}{{ end }}
 `
